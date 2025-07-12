@@ -1,0 +1,13 @@
+{
+	"title"		:	"Collision Tool",
+	"type"		:	"tool",
+	"tags"		:	[ "build", "scenic" ],
+	"ignore"	:
+	[
+		"*.psd",
+		"*.vcproj",
+		"*.git",
+		"*.svn*",
+		"workshop images"
+	]
+}
