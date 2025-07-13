@@ -77,7 +77,7 @@ function TOOL:LeftClick( trace )
 	if ent:IsWorld() then return end
 	if not ent.SetCollisionGroup then return false end
 
-	local col_group = self:GetClientNumber( "col_group" )
+	local col_group		= self:GetClientNumber( "col_group" )
 	local old_col_group = ent:GetCollisionGroup()
 
 	if col_group == old_col_group then return true end
