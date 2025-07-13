@@ -196,14 +196,16 @@ if CLIENT then
 
 		if not ( ent:IsValid() or ent:IsWorld() ) then return end
 
-		local pos = ( ent:GetPos() + ent:OBBCenter() ):ToScreen()
-		local x, y = pos.x, pos.y - 15
+		local vecmin, vecmax = ent:WorldSpaceAABB()
+		local pos = ent:WorldSpaceCenter()
+		pos.z = vecmax.z
+		local pos = pos:ToScreen()
+		local x, y = pos.x, pos.y
 		
 		local col_group = ent:GetCollisionGroup()
-		local olcol = HSVToColor( 50 + 16*col_group, 1, 0.5 )
-		local bgcol = HSVToColor( 50 + 16*col_group, 0.75, 0.9 )
-		olcol.a = 200
-		bgcol.a = 200
+		local col2	= HSVToColor( 50 + 16*col_group, 0.5, 1 )
+		local bgcol = HSVToColor( 50 + 16*col_group, 1, 0.1 )
+		bgcol.a = 220
 		local font  = "GModWorldtip"
 		local rad   = 8
 		
@@ -211,10 +213,11 @@ if CLIENT then
 		
 		surface.SetFont( font )
 		local tw, th = surface.GetTextSize( text )
+
+		y = y - th
 		
-		draw.RoundedBox( rad, x - tw/2 - 12, y - th/2 - 4, tw + 24, th + 8, olcol )
 		draw.RoundedBox( rad, x - tw/2 - 10, y - th/2 - 2, tw + 20, th + 4, bgcol )
-		draw.SimpleText( text, font, x, y, color_black, 1, 1 )
+		draw.SimpleText( text, font, x, y, col2, 1, 1 )
 	end
 end
 
@@ -222,15 +225,19 @@ end
 local cvarlist = TOOL:BuildConVarList()
 
 function TOOL.BuildCPanel( cPanel )
+	
+	local color_blue = Color( 50, 100, 200 )
+	local color_green = Color( 35, 155, 100 )
+	local color_gray = Color( 240, 240, 240 )
 
-	local function paint( panel, w, h )
+	local function paint( panel, w, h, hcol, bgcol )
 		local topHeight = panel:GetHeaderHeight()
 		local c = not panel:GetExpanded()
-		draw.RoundedBoxEx( 4, 0, 0, w, topHeight, Color( 50, 100, 200 ), true, true, c, c )
-		draw.RoundedBoxEx( 8, 0, topHeight, w, h - topHeight + 5, Color( 240, 240, 240 ), false, false, true, true )
+		draw.RoundedBoxEx( 4, 0, 0, w, topHeight, hcol, true, true, c, c )
+		draw.RoundedBoxEx( 8, 0, topHeight, w, h - topHeight + 5, bgcol, false, false, true, true )
 	end
 
-	cPanel:Help( "tool."..mode..".desc" )
+	cPanel:Help( "#tool."..mode..".desc" )
 
 	cPanel:ToolPresets( mode, cvarlist )
 
@@ -254,7 +261,7 @@ function TOOL.BuildCPanel( cPanel )
 		expForm:SetPaintBackground( false )
 		expForm:DockPadding( 0, 0, 0, 5 )
 		function expForm:Paint(w, h)
-			paint( self, w, h )
+			paint( self, w, h, color_blue, color_gray )
 		end
 
 		local tcgComboBox = expForm:ComboBox( "Trace C. Group:", mode.."_trace_col_group" )
@@ -272,7 +279,7 @@ function TOOL.BuildCPanel( cPanel )
 		helpForm:SetPaintBackground( false )
 		helpForm:DockPadding( 0, 0, 0, 5 )
 		function helpForm:Paint(w, h)
-			paint( self, w, h )
+			paint( self, w, h, color_green, color_gray )
 		end
 
 		local valveButton, fpButton = vgui.Create( "DButton", helpForm ), vgui.Create( "DButton", helpForm )
